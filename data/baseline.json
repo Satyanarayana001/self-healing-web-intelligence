@@ -1,0 +1,49 @@
+[
+  {
+    "changelog_entries": [
+      {
+        "title": "Encrypted Client Hello (ECH) is now supported on Vercel CDN",
+        "description": "Vercel CDN now supports ECH for domains managed by Vercel DNS.",
+        "url": "https://vercel.com/changelog/encrypted-client-hello-now-supported-on-vercel-cdn"
+      },
+      {
+        "title": "GLM 5.2 free for eve agents through August 27 via Blackbox on AI Gateway",
+        "description": "GLM 5.2, Z​.ai's open-weights coding model with a 1M-token context window, is free for eve agents through August 27, served by Blackbox AI on Vercel AI Gateway.",
+        "url": "https://vercel.com/changelog/glm-5-2-free-for-eve-agents-through-august-27-via-blackbox-on-ai-gateway"
+      },
+      {
+        "title": "Gemini 3.7 Flash now available on AI Gateway for 50% off",
+        "description": "Call Google's Gemini 3.7 Flash through Vercel AI Gateway with one API key: no provider account, automatic fallbacks, spend tracking, and request traces.",
+        "url": "https://vercel.com/changelog/gemini-3-7-flash-now-available-on-ai-gateway-for-50-off"
+      },
+      {
+        "title": "One-click upgrade for deprecated Node.js versions",
+        "description": "You can now upgrade Node.js 20 projects with one click from the Vercel Dashboard.",
+        "url": "https://vercel.com/changelog/one-click-upgrade-for-deprecated-node-js-versions"
+      },
+      {
+        "title": "Grok Build is now available in the AI SDK harness layer",
+        "description": "Grok Build is now available in the AI SDK harness layer through the @ai-sdk/harness-grok-build adapter, built on the ACP harness. Run it through the same HarnessAgent interface.",
+        "url": "https://vercel.com/changelog/grok-build-harness-adapter"
+      },
+      {
+        "title": "Use ACP-compatible harnesses with the AI SDK harness layer",
+        "description": "The new @ai-sdk/harness-acp package is a meta adapter that lets you use any Agent Client Protocol compatible harness with the AI SDK's HarnessAgent.",
+        "url": "https://vercel.com/changelog/use-acp-compatible-harnesses-with-the-ai-sdk-harness-layer"
+      },
+      {
+        "title": "Exa joins the Vercel Agent Marketplace",
+        "description": "Exa's neural search engine delivers high-quality, relevant results to ground AI in fresh, current information. Add Exa to your Vercel app in minutes to power search, research agents, and context-aware features.",
+        "url": "https://vercel.com/changelog/exa-joins-the-vercel-agent-marketplace"
+      },
+      {
+        "title": "DeepSeek V4 Pro now runs updated weights on AI Gateway",
+        "description": "DeepSeek V4 Pro now runs on updated weights by default on Vercel AI Gateway. Existing requests pick them up with no code change, and the dated model ID pins the new version.",
+        "url": "https://vercel.com/changelog/deepseek-v4-pro-now-runs-updated-weights-on-ai-gateway"
+      }
+    ],
+    "input": {
+      "url": "https://vercel.com/changelog"
+    }
+  }
+]
