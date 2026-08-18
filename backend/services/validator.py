@@ -4,14 +4,19 @@ REQUIRED_FIELDS = [
     "url",
 ]
 
+MIN_RECORDS = 1
+
 
 def validate_changelog_data(data):
     entries = data.get("changelog_entries", [])
 
     errors = []
 
-    if not entries:
-        errors.append("No changelog entries were extracted.")
+    if len(entries) < MIN_RECORDS:
+        errors.append(
+            f"Expected at least {MIN_RECORDS} record(s), "
+            f"but received {len(entries)}."
+        )
 
     for index, entry in enumerate(entries):
         for field in REQUIRED_FIELDS:

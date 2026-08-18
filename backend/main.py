@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 from backend.services.brightdata import trigger_scraper, retrieve_results
 from backend.services.validator import validate_changelog_data
+from backend.services.healing import heal_scraper
 
 load_dotenv()
 
@@ -86,6 +87,96 @@ def get_scrape_results(collection_id: str):
             "collection_id": collection_id,
             "health": validation,
             "data": result
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+
+@app.post("/self-heal/{collection_id}")
+def self_heal(collection_id: str):
+    try:
+        result = retrieve_results(collection_id)
+
+        health = validate_changelog_data(result)
+
+        if health["healthy"]:
+            return {
+                "status": "healthy",
+                "healed": False,
+                "message": "No healing was required.",
+                "health": health
+            }
+
+        healing_result = heal_scraper(
+            max_attempts=3,
+            poll_interval=10,
+            max_polls=6
+        )
+
+        return {
+            "status": "healing_completed",
+            "initial_health": health,
+            "healing": healing_result
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
+@app.post("/monitor")
+def monitor():
+    try:
+        trigger_result = trigger_scraper()
+
+        collection_id = trigger_result.get("collection_id")
+
+        if not collection_id:
+            raise RuntimeError(
+                "Bright Data did not return a collection_id"
+            )
+
+        import time
+
+        result = None
+
+        for _ in range(6):
+            result = retrieve_results(collection_id)
+
+            if result.get("status") != "building":
+                break
+
+            time.sleep(10)
+
+        if result is None or result.get("status") == "building":
+            raise RuntimeError(
+                "Dataset was not ready after polling."
+            )
+
+        health = validate_changelog_data(result)
+
+        if health["healthy"]:
+            return {
+                "status": "healthy",
+                "collection_id": collection_id,
+                "health": health,
+                "data": result
+            }
+
+        healing_result = heal_scraper(
+            max_attempts=3,
+            poll_interval=10,
+            max_polls=6
+        )
+
+        return {
+            "status": "healing_completed",
+            "collection_id": collection_id,
+            "initial_health": health,
+            "healing": healing_result
         }
 
     except Exception as e:
