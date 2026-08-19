@@ -1,0 +1,45 @@
+[
+  {
+    "timestamp": "2026-08-19T03:45:25.173209+00:00",
+    "event": "self_healing",
+    "healed": true,
+    "attempts": 1,
+    "collection_id": "j_mszjt21p53vcoly6k",
+    "record_count": 8,
+    "errors": [],
+    "events": [
+      {
+        "attempt": 1,
+        "action": "trigger_new_collection"
+      },
+      {
+        "attempt": 1,
+        "collection_id": "j_mszjt21p53vcoly6k",
+        "status": "collection_triggered"
+      },
+      {
+        "attempt": 1,
+        "poll": 1,
+        "status": "data_not_healthy_yet",
+        "health": {
+          "healthy": false,
+          "record_count": 0,
+          "errors": [
+            "Expected at least 1 record(s), but received 0."
+          ]
+        }
+      },
+      {
+        "attempt": 1,
+        "poll": 2,
+        "status": "dataset_building"
+      },
+      {
+        "attempt": 1,
+        "poll": 3,
+        "status": "healed",
+        "record_count": 8
+      }
+    ]
+  }
+]

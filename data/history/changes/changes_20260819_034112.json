@@ -1,0 +1,18 @@
+{
+  "new": [
+    {
+      "title": "Example new entry",
+      "description": "Example",
+      "url": "https://example.com/new"
+    }
+  ],
+  "modified": [],
+  "removed": [],
+  "unchanged": [],
+  "summary": {
+    "new": 1,
+    "modified": 0,
+    "removed": 0,
+    "unchanged": 0
+  }
+}
