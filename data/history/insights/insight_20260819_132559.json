@@ -1,0 +1,18 @@
+{
+  "provider": "groq",
+  "summary": "One new AI SDK feature added.",
+  "overall_impact": "medium",
+  "categories": [
+    "SDK",
+    "AI"
+  ],
+  "key_changes": [
+    {
+      "title": "New AI SDK feature",
+      "type": "new",
+      "importance": "medium",
+      "impact": "Adds new functionality to the AI SDK, enabling developers to extend their applications.",
+      "explanation": "This feature expands the SDK's capabilities by introducing additional APIs for developers."
+    }
+  ]
+}

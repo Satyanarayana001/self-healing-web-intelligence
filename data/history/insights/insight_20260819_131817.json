@@ -1,0 +1,18 @@
+{
+  "provider": "local-rule-based",
+  "summary": "Detected 1 new, 0 modified, and 0 entries absent from the latest feed.",
+  "overall_impact": "medium",
+  "categories": [
+    "Web Changes",
+    "Developer Information"
+  ],
+  "key_changes": [
+    {
+      "title": "New AI SDK feature",
+      "type": "new",
+      "importance": "medium",
+      "impact": "A new entry appeared in the latest extracted feed.",
+      "explanation": "A new feature has been added to the AI SDK."
+    }
+  ]
+}

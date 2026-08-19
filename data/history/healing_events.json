@@ -41,5 +41,134 @@
         "record_count": 8
       }
     ]
+  },
+  {
+    "timestamp": "2026-08-19T13:13:55.983299+00:00",
+    "event": "self_healing",
+    "healed": true,
+    "attempts": 1,
+    "collection_id": "j_mt0443oc2k01fw5hpg",
+    "record_count": 8,
+    "errors": [],
+    "events": [
+      {
+        "attempt": 1,
+        "action": "trigger_new_collection"
+      },
+      {
+        "attempt": 1,
+        "collection_id": "j_mt0443oc2k01fw5hpg",
+        "status": "collection_triggered"
+      },
+      {
+        "attempt": 1,
+        "poll": 1,
+        "status": "data_not_healthy_yet",
+        "health": {
+          "healthy": false,
+          "record_count": 0,
+          "errors": [
+            "Expected at least 1 record(s), but received 0."
+          ]
+        }
+      },
+      {
+        "attempt": 1,
+        "poll": 2,
+        "status": "dataset_building"
+      },
+      {
+        "attempt": 1,
+        "poll": 3,
+        "status": "healed",
+        "record_count": 8
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-08-19T13:22:19.577936+00:00",
+    "event": "self_healing",
+    "healed": true,
+    "attempts": 1,
+    "collection_id": "j_mt04ew9yuaduzkvos",
+    "record_count": 8,
+    "errors": [],
+    "events": [
+      {
+        "attempt": 1,
+        "action": "trigger_new_collection"
+      },
+      {
+        "attempt": 1,
+        "collection_id": "j_mt04ew9yuaduzkvos",
+        "status": "collection_triggered"
+      },
+      {
+        "attempt": 1,
+        "poll": 1,
+        "status": "data_not_healthy_yet",
+        "health": {
+          "healthy": false,
+          "record_count": 0,
+          "errors": [
+            "Expected at least 1 record(s), but received 0."
+          ]
+        }
+      },
+      {
+        "attempt": 1,
+        "poll": 2,
+        "status": "dataset_building"
+      },
+      {
+        "attempt": 1,
+        "poll": 3,
+        "status": "healed",
+        "record_count": 8
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-08-19T13:27:05.463119+00:00",
+    "event": "self_healing",
+    "healed": true,
+    "attempts": 1,
+    "collection_id": "j_mt04l11cb4pmnw86i",
+    "record_count": 8,
+    "errors": [],
+    "events": [
+      {
+        "attempt": 1,
+        "action": "trigger_new_collection"
+      },
+      {
+        "attempt": 1,
+        "collection_id": "j_mt04l11cb4pmnw86i",
+        "status": "collection_triggered"
+      },
+      {
+        "attempt": 1,
+        "poll": 1,
+        "status": "data_not_healthy_yet",
+        "health": {
+          "healthy": false,
+          "record_count": 0,
+          "errors": [
+            "Expected at least 1 record(s), but received 0."
+          ]
+        }
+      },
+      {
+        "attempt": 1,
+        "poll": 2,
+        "status": "dataset_building"
+      },
+      {
+        "attempt": 1,
+        "poll": 3,
+        "status": "healed",
+        "record_count": 8
+      }
+    ]
   }
 ]

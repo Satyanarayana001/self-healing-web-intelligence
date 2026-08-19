@@ -1,0 +1,81 @@
+{
+  "provider": "local-rule-based",
+  "summary": "Detected 7 new, 0 modified, and 7 entries absent from the latest feed.",
+  "overall_impact": "medium",
+  "categories": [
+    "Web Changes",
+    "Developer Information"
+  ],
+  "key_changes": [
+    {
+      "title": "Chat SDK adds Instagram adapter",
+      "type": "new",
+      "importance": "medium",
+      "impact": "A new entry appeared in the latest extracted feed.",
+      "explanation": "Chat SDK now supports Instagram Direct Messages. Build DM bots with media, quick replies, reactions, and story replies."
+    },
+    {
+      "title": "Vercel for Platforms can now deploy from your users' GitHub repositories",
+      "type": "new",
+      "importance": "medium",
+      "impact": "A new entry appeared in the latest extracted feed.",
+      "explanation": "Pass a short-lived GitHub token when creating a deployment. Vercel uses it to retrieve the source, stores it encrypted, and never saves it on the deployment."
+    },
+    {
+      "title": "Cline is now available in the AI SDK harness layer",
+      "type": "new",
+      "importance": "medium",
+      "impact": "A new entry appeared in the latest extracted feed.",
+      "explanation": "Cline is now available in the AI SDK harness layer through the @ai-sdk/harness-cline adapter, implemented in collaboration with the Cline team. Run it through the same HarnessAgent interface."
+    },
+    {
+      "title": "GLM 5.3 now available on AI Gateway",
+      "type": "new",
+      "importance": "medium",
+      "impact": "A new entry appeared in the latest extracted feed.",
+      "explanation": "Call Z.ai's GLM-5.3 through Vercel AI Gateway with one API key: no markup or platform fee, automatic fallbacks, spend tracking, and traces on every request."
+    },
+    {
+      "title": "Sign JWTs from your Functions without managing private keys",
+      "type": "new",
+      "importance": "medium",
+      "impact": "A new entry appeared in the latest extracted feed.",
+      "explanation": "Vercel KMS lets you sign JWTs and messages from your Vercel Functions with managed keys. Authenticate with your function's OIDC token, keep private keys out of your code, and manage issuers, keys, and grants from the dashboard or CLI. Now in Public Beta."
+    },
+    {
+      "title": "GLM 5.2 free for eve agents through August 27 via Blackbox on AI Gateway",
+      "type": "removed",
+      "importance": "medium",
+      "impact": "The entry is no longer present in the latest extracted feed.",
+      "explanation": "GLM 5.2, Z​.ai's open-weights coding model with a 1M-token context window, is free for eve agents through August 27, served by Blackbox AI on Vercel AI Gateway."
+    },
+    {
+      "title": "Gemini 3.7 Flash now available on AI Gateway for 50% off",
+      "type": "removed",
+      "importance": "medium",
+      "impact": "The entry is no longer present in the latest extracted feed.",
+      "explanation": "Call Google's Gemini 3.7 Flash through Vercel AI Gateway with one API key: no provider account, automatic fallbacks, spend tracking, and request traces."
+    },
+    {
+      "title": "One-click upgrade for deprecated Node.js versions",
+      "type": "removed",
+      "importance": "medium",
+      "impact": "The entry is no longer present in the latest extracted feed.",
+      "explanation": "You can now upgrade Node.js 20 projects with one click from the Vercel Dashboard."
+    },
+    {
+      "title": "Grok Build is now available in the AI SDK harness layer",
+      "type": "removed",
+      "importance": "medium",
+      "impact": "The entry is no longer present in the latest extracted feed.",
+      "explanation": "Grok Build is now available in the AI SDK harness layer through the @ai-sdk/harness-grok-build adapter, built on the ACP harness. Run it through the same HarnessAgent interface."
+    },
+    {
+      "title": "Use ACP-compatible harnesses with the AI SDK harness layer",
+      "type": "removed",
+      "importance": "medium",
+      "impact": "The entry is no longer present in the latest extracted feed.",
+      "explanation": "The new @ai-sdk/harness-acp package is a meta adapter that lets you use any Agent Client Protocol compatible harness with the AI SDK's HarnessAgent."
+    }
+  ]
+}

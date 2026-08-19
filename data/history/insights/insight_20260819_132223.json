@@ -1,0 +1,70 @@
+{
+  "provider": "groq",
+  "summary": "New AI SDK adapters, platform deployment enhancements, security improvements, and AI Gateway model updates, alongside removal of several AI model offers and platform features.",
+  "overall_impact": "medium",
+  "categories": [
+    "AI SDK",
+    "Platform Deployment",
+    "Security",
+    "AI Gateway",
+    "Marketplace"
+  ],
+  "key_changes": [
+    {
+      "title": "Chat SDK adds Instagram adapter",
+      "type": "new",
+      "importance": "high",
+      "impact": "Enables developers to build Instagram Direct Message bots with media, quick replies, reactions, and story replies, expanding Chat SDK’s reach.",
+      "explanation": "Adds a new adapter for Instagram, broadening the SDK’s supported platforms."
+    },
+    {
+      "title": "Vercel for Platforms can now deploy from your users' GitHub repositories",
+      "type": "new",
+      "importance": "high",
+      "impact": "Allows platform builders to deploy directly from users’ GitHub repos using short-lived tokens, simplifying onboarding and security.",
+      "explanation": "Introduces a token-based deployment flow that keeps source code secure."
+    },
+    {
+      "title": "Sign JWTs from your Functions without managing private keys",
+      "type": "new",
+      "importance": "high",
+      "impact": "Improves security for serverless functions by enabling key management via Vercel KMS, removing the need to store private keys in code.",
+      "explanation": "Provides a managed key service for JWT signing in Functions."
+    },
+    {
+      "title": "GLM 5.3 now available on AI Gateway",
+      "type": "new",
+      "importance": "medium",
+      "impact": "Adds a new large language model to the AI Gateway, giving users more options for AI workloads.",
+      "explanation": "Introduces GLM‑5.3 with no markup or platform fee."
+    },
+    {
+      "title": "GPT-5.6 Sol is 50% off on AI Gateway for the next month",
+      "type": "new",
+      "importance": "medium",
+      "impact": "Offers a temporary discount on GPT‑5.6 Sol, encouraging adoption of the model on the AI Gateway.",
+      "explanation": "Provides a 50% price reduction for a limited period."
+    },
+    {
+      "title": "Gemini 3.7 Flash discount removed",
+      "type": "removed",
+      "importance": "medium",
+      "impact": "Users lose the 50% discount on Gemini 3.7 Flash, potentially affecting cost-sensitive projects.",
+      "explanation": "The promotional pricing for Gemini 3.7 Flash is no longer available."
+    },
+    {
+      "title": "DeepSeek V4 Pro updated weights removed",
+      "type": "removed",
+      "importance": "medium",
+      "impact": "Users no longer receive automatic weight updates for DeepSeek V4 Pro on the AI Gateway.",
+      "explanation": "The feature that auto‑updates weights for DeepSeek V4 Pro has been discontinued."
+    },
+    {
+      "title": "One-click upgrade for deprecated Node.js versions removed",
+      "type": "removed",
+      "importance": "low",
+      "impact": "Deprecated Node.js projects lose the one-click upgrade convenience, requiring manual updates.",
+      "explanation": "The one-click upgrade option for older Node.js versions has been removed."
+    }
+  ]
+}

@@ -54,3 +54,23 @@ def save_changes(changes):
         )
 
     return str(path)
+
+def save_insight(insight):
+    directory = Path("data/history/insights")
+    directory.mkdir(parents=True, exist_ok=True)
+
+    timestamp = datetime.now(timezone.utc).strftime(
+        "%Y%m%d_%H%M%S"
+    )
+
+    path = directory / f"insight_{timestamp}.json"
+
+    with open(path, "w", encoding="utf-8") as file:
+        json.dump(
+            insight,
+            file,
+            indent=2,
+            ensure_ascii=False
+        )
+
+    return str(path)

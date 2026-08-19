@@ -1,0 +1,48 @@
+{
+  "provider": "groq",
+  "summary": "New AI Gateway models, expanded SDK adapters, and deployment enhancements; several promotional offers and older features are no longer listed.",
+  "overall_impact": "medium",
+  "categories": [
+    "AI Gateway",
+    "SDK",
+    "Deployment",
+    "Security"
+  ],
+  "key_changes": [
+    {
+      "title": "GLM 5.3 now available on AI Gateway",
+      "type": "new",
+      "importance": "high",
+      "impact": "Adds a powerful new model to the AI Gateway, enabling developers to use GLM-5.3 with a single API key and no platform fee.",
+      "explanation": "Provides an additional high‑performance model for Vercel AI Gateway users, expanding the range of available AI services."
+    },
+    {
+      "title": "Chat SDK adds Instagram adapter",
+      "type": "new",
+      "importance": "high",
+      "impact": "Extends the Chat SDK to support Instagram Direct Messages, allowing bot developers to interact with Instagram users directly.",
+      "explanation": "Enables building DM bots with media, quick replies, reactions, and story replies on Instagram."
+    },
+    {
+      "title": "Vercel for Platforms can now deploy from your users' GitHub repositories",
+      "type": "new",
+      "importance": "medium",
+      "impact": "Simplifies deployment for platform builders by allowing short‑lived GitHub tokens to fetch source code securely.",
+      "explanation": "Users can deploy directly from their GitHub repos without storing tokens on the deployment."
+    },
+    {
+      "title": "GLM 5.2 free for eve agents through August 27 via Blackbox on AI Gateway",
+      "type": "removed",
+      "importance": "medium",
+      "impact": "The promotional offer is no longer listed in the latest feed.",
+      "explanation": "The entry for the free GLM‑5.2 promotion is absent from the current extraction."
+    },
+    {
+      "title": "Gemini 3.7 Flash now available on AI Gateway for 50% off",
+      "type": "removed",
+      "importance": "medium",
+      "impact": "The discount offer is no longer present in the latest feed.",
+      "explanation": "The entry for the 50% off Gemini‑3.7 Flash promotion is absent from the current extraction."
+    }
+  ]
+}
