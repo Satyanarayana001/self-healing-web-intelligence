@@ -5,16 +5,40 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 
+# --------------------------------
+# Load environment variables
+# --------------------------------
+
 load_dotenv()
 
 
+# --------------------------------
+# Groq configuration
+# --------------------------------
+
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"
+
 GROQ_MODEL = "openai/gpt-oss-20b"
 
+
+# --------------------------------
+# Create Groq client
+# --------------------------------
+
 def get_groq_client():
-    api_key = os.getenv("GROQ_API_KEY")
+    """
+    Create and return a Groq client.
+
+    Returns None if GROQ_API_KEY
+    is not configured.
+    """
+
+    api_key = os.getenv(
+        "GROQ_API_KEY"
+    )
 
     if not api_key:
+
         return None
 
     return OpenAI(
@@ -23,31 +47,64 @@ def get_groq_client():
     )
 
 
+# --------------------------------
+# Local fallback analysis
+# --------------------------------
+
 def local_analysis(changes):
     """
-    Deterministic fallback.
+    Deterministic fallback analysis.
 
     This is NOT an AI model.
-    It is used only when the LLM provider is unavailable.
+
+    It is used only when the Groq API
+    is unavailable or fails.
+
+    IMPORTANT:
+
+    An entry in
+    "missing_from_latest_snapshot"
+    means the entry was not found in the
+    latest extracted snapshot.
+
+    It does NOT necessarily mean the entry
+    was permanently deleted from the website.
     """
 
-    new_count = changes.get(
-        "summary", {}
-    ).get("new", 0)
+    summary = changes.get(
+        "summary",
+        {}
+    )
 
-    modified_count = changes.get(
-        "summary", {}
-    ).get("modified", 0)
+    new_count = summary.get(
+        "new",
+        0
+    )
 
-    removed_count = changes.get(
-        "summary", {}
-    ).get("removed", 0)
+    modified_count = summary.get(
+        "modified",
+        0
+    )
+
+    missing_count = summary.get(
+        "missing_from_latest_snapshot",
+        0
+    )
 
     key_changes = []
 
-    for entry in changes.get("new", [])[:5]:
+
+    # --------------------------------
+    # Analyze new entries
+    # --------------------------------
+
+    for entry in changes.get(
+        "new",
+        []
+    )[:5]:
 
         key_changes.append({
+
             "title": entry.get(
                 "title",
                 "Untitled"
@@ -59,7 +116,7 @@ def local_analysis(changes):
 
             "impact": (
                 "A new entry appeared in "
-                "the latest extracted feed."
+                "the latest extracted snapshot."
             ),
 
             "explanation": entry.get(
@@ -68,8 +125,14 @@ def local_analysis(changes):
             )
         })
 
+
+    # --------------------------------
+    # Analyze modified entries
+    # --------------------------------
+
     for entry in changes.get(
-        "modified", []
+        "modified",
+        []
     )[:5]:
 
         after = entry.get(
@@ -78,6 +141,7 @@ def local_analysis(changes):
         )
 
         key_changes.append({
+
             "title": after.get(
                 "title",
                 "Modified entry"
@@ -89,7 +153,7 @@ def local_analysis(changes):
 
             "impact": (
                 "An existing entry changed "
-                "in the latest extraction."
+                "compared with the baseline snapshot."
             ),
 
             "explanation": after.get(
@@ -98,36 +162,60 @@ def local_analysis(changes):
             )
         })
 
+
+    # --------------------------------
+    # Analyze missing entries
+    # --------------------------------
+
     for entry in changes.get(
-        "removed", []
+        "missing_from_latest_snapshot",
+        []
     )[:5]:
 
         key_changes.append({
+
             "title": entry.get(
                 "title",
                 "Entry"
             ),
 
-            "type": "removed",
+            "type": (
+                "missing_from_latest_snapshot"
+            ),
 
             "importance": "medium",
 
             "impact": (
-                "The entry is no longer present "
-                "in the latest extracted feed."
+                "This entry was present in the "
+                "baseline but was not found in the "
+                "latest extracted snapshot."
             ),
 
-            "explanation": entry.get(
-                "description",
-                "Entry is absent from the latest feed."
+            "explanation": (
+                "The entry is absent from the latest "
+                "snapshot. This does not necessarily "
+                "mean it was deleted from the source website."
             )
         })
 
+
+    # --------------------------------
+    # Calculate total changes
+    # --------------------------------
+
     total_changes = (
+
         new_count
+
         + modified_count
-        + removed_count
+
+        + missing_count
     )
+
+
+    # --------------------------------
+    # Determine overall impact
+    # --------------------------------
 
     if total_changes == 0:
 
@@ -137,24 +225,40 @@ def local_analysis(changes):
 
         overall_impact = "high"
 
+    elif total_changes >= 5:
+
+        overall_impact = "medium"
+
     else:
 
         overall_impact = "medium"
 
+
+    # --------------------------------
+    # Return fallback analysis
+    # --------------------------------
+
     return {
+
         "provider": "local-rule-based",
 
         "summary": (
+
             f"Detected {new_count} new, "
+
             f"{modified_count} modified, and "
-            f"{removed_count} entries absent "
-            f"from the latest feed."
+
+            f"{missing_count} entries missing "
+
+            f"from the latest snapshot."
         ),
 
         "overall_impact": overall_impact,
 
         "categories": [
+
             "Web Changes",
+
             "Developer Information"
         ],
 
@@ -162,9 +266,22 @@ def local_analysis(changes):
     }
 
 
+# --------------------------------
+# Analyze changes using Groq
+# --------------------------------
+
 def analyze_with_groq(changes):
+    """
+    Send detected changes to Groq
+    for AI-powered analysis.
+    """
 
     client = get_groq_client()
+
+
+    # --------------------------------
+    # Validate API configuration
+    # --------------------------------
 
     if client is None:
 
@@ -172,22 +289,54 @@ def analyze_with_groq(changes):
             "GROQ_API_KEY is not configured."
         )
 
+
+    # --------------------------------
+    # Build AI prompt
+    # --------------------------------
+
     prompt = f"""
 You are the AI analysis layer of a
 self-healing web intelligence system.
 
-The system has already scraped a public website
-using Bright Data and detected factual changes.
+The system has already:
 
-Analyze ONLY the supplied change data.
+1. Scraped a public website using Bright Data.
+2. Validated the extracted data.
+3. Compared the latest snapshot with a baseline.
+4. Detected factual differences.
+
+Your job is to analyze ONLY the supplied
+change data.
+
+IMPORTANT TERMINOLOGY:
+
+The change data may contain:
+
+- "new"
+- "modified"
+- "missing_from_latest_snapshot"
 
 IMPORTANT:
-A "removed" entry means it is no longer present
-in the latest extracted feed. It does NOT
-necessarily mean the source website permanently
-deleted it.
 
-Change data:
+An entry inside
+"missing_from_latest_snapshot"
+
+means that the entry existed in the baseline
+but was NOT found in the latest extracted
+snapshot.
+
+It DOES NOT necessarily mean:
+
+- the website deleted the feature
+- the product was discontinued
+- the capability was removed
+- the discount ended
+- the source permanently removed the content
+
+Never claim any of those things unless they
+are explicitly supported by the supplied data.
+
+Analyze ONLY the following change data:
 
 {json.dumps(
     changes,
@@ -198,39 +347,76 @@ Change data:
 Return ONLY valid JSON using this exact structure:
 
 {{
-  "provider": "groq",
-  "summary": "Concise summary of the important changes.",
-  "overall_impact": "low | medium | high",
-  "categories": [
-    "category1",
-    "category2"
-  ],
-  "key_changes": [
-    {{
-      "title": "Change title",
-      "type": "new | modified | removed",
-      "importance": "low | medium | high",
-      "impact": "Why this change matters.",
-      "explanation": "Clear concise explanation."
-    }}
-  ]
+    "provider": "groq",
+
+    "summary": "Concise summary of the important changes.",
+
+    "overall_impact": "low | medium | high",
+
+    "categories": [
+        "category1",
+        "category2"
+    ],
+
+    "key_changes": [
+        {{
+            "title": "Change title",
+
+            "type": "new | modified | missing_from_latest_snapshot",
+
+            "importance": "low | medium | high",
+
+            "impact": "Why this change matters.",
+
+            "explanation": "Clear concise explanation."
+        }}
+    ]
 }}
 
 Rules:
 
-1. Use only information contained in the input.
+1. Use ONLY information contained in the input.
+
 2. Never invent facts.
-3. Prioritize meaningful changes.
-4. Keep explanations concise.
-5. Analyze new, modified, and removed entries.
-6. If many changes exist, prioritize the most meaningful ones.
-7. For "removed" entries, NEVER claim that a feature,
-   product, discount, or capability was discontinued.
-   Only say that the corresponding entry is no longer
-   present in the latest extracted feed.
-8. Do not infer business decisions from an entry being removed.
-9. Return valid JSON only.
+
+3. Never assume information that is not present.
+
+4. Prioritize meaningful changes.
+
+5. Keep explanations concise and useful.
+
+6. Analyze new, modified, and
+   missing_from_latest_snapshot entries.
+
+7. If many changes exist, prioritize the
+   most meaningful ones.
+
+8. For entries with the type
+   "missing_from_latest_snapshot":
+
+   NEVER claim that a feature, product,
+   discount, model, capability, or service
+   was removed, discontinued, deleted,
+   or ended.
+
+9. For missing entries, clearly state only
+   that the entry was not present in the
+   latest extracted snapshot.
+
+10. Do not infer business decisions from
+    an entry being absent.
+
+11. Return valid JSON only.
+
+12. Do not include markdown.
+
+13. Do not include ```json code fences.
 """
+
+
+    # --------------------------------
+    # Call Groq
+    # --------------------------------
 
     response = client.chat.completions.create(
 
@@ -245,15 +431,19 @@ Rules:
         messages=[
 
             {
+
                 "role": "system",
 
                 "content": (
-                    "You are a precise web-change "
-                    "analysis assistant."
+                    "You are a precise and reliable "
+                    "web-change analysis assistant. "
+                    "Use only supplied evidence and "
+                    "do not invent facts."
                 )
             },
 
             {
+
                 "role": "user",
 
                 "content": prompt
@@ -261,12 +451,19 @@ Rules:
         ]
     )
 
+
+    # --------------------------------
+    # Extract response content
+    # --------------------------------
+
     content = (
+
         response
         .choices[0]
         .message
         .content
     )
+
 
     if not content:
 
@@ -274,16 +471,39 @@ Rules:
             "Groq returned an empty response."
         )
 
+
+    # --------------------------------
+    # Parse JSON response
+    # --------------------------------
+
     result = json.loads(
         content
     )
 
+
+    # --------------------------------
+    # Force correct provider name
+    # --------------------------------
+
     result["provider"] = "groq"
+
 
     return result
 
 
+# --------------------------------
+# Main analysis function
+# --------------------------------
+
 def analyze_changes(changes):
+    """
+    Analyze detected changes.
+
+    First attempts Groq AI analysis.
+
+    If Groq is unavailable, automatically
+    falls back to deterministic local analysis.
+    """
 
     try:
 
@@ -293,10 +513,12 @@ def analyze_changes(changes):
 
         return result
 
+
     except Exception as error:
 
         print(
-            f"Groq analysis unavailable: {error}"
+            f"Groq analysis unavailable: "
+            f"{error}"
         )
 
         print(

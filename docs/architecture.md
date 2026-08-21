@@ -94,7 +94,6 @@ The project will use a modular architecture with separated scraping, health moni
                               ▼
                  ┌─────────────────────────┐
                  │     Health Monitor      │
-                 │                         │
                  │ • Record count          │
                  │ • Required fields       │
                  │ • Missing data          │
@@ -125,7 +124,6 @@ The project will use a modular architecture with separated scraping, health moni
                               ▼
                  ┌─────────────────────────┐
                  │      AI Analysis        │
-                 │                         │
                  │ • Summarization         │
                  │ • Impact analysis       │
                  │ • Change explanation    │
@@ -134,7 +132,6 @@ The project will use a modular architecture with separated scraping, health moni
                               ▼
                  ┌─────────────────────────┐
                  │       Dashboard         │
-                 │                         │
                  │ • Scraper health        │
                  │ • Changes               │
                  │ • Self-healing events   │

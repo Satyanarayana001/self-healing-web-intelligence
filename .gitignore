@@ -1,19 +1,18 @@
+# Environment
+.env
+.venv/
+
 # Python
 __pycache__/
 *.py[cod]
-.venv/
-venv/
-.env
 
 # Node
 node_modules/
-dist/
-build/
+frontend/node_modules/
 
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
+# Runtime-generated monitoring data
+data/baseline_backup.json
+data/history/changes/
+data/history/insights/
+data/history/snapshots/
+data/history/healing_events.json

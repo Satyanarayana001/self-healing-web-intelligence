@@ -1,104 +1,48 @@
-import json
 import os
-import time
 
-from fastapi import FastAPI, HTTPException
+from pathlib import Path
+import json
+
+
 from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
 
 from backend.services.brightdata import (
     trigger_scraper,
-    retrieve_results
+    retrieve_results,
 )
 
 from backend.services.validator import (
-    validate_changelog_data
+    validate_changelog_data,
 )
 
 from backend.services.healing import (
-    heal_scraper
+    heal_scraper,
 )
 
-from backend.services.snapshot import (
-    create_snapshot,
-    save_snapshot,
-    save_changes,
-    save_insight
-)
-
-from backend.services.ai_analyzer import (
-    analyze_changes
-)
-
-from backend.services.change_detector import (
-    detect_changes
+from backend.services.orchestrator import (
+    run_monitoring_cycle,
 )
 
 
 load_dotenv()
 
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="Self-Healing Web Intelligence",
-    version="0.3.0"
+    version="0.4.0",
 )
-
-
-BASELINE_FILE = "data/baseline.json"
-
-
-def load_baseline():
-    """
-    Load the baseline snapshot used for
-    change detection.
-    """
-
-    with open(
-        BASELINE_FILE,
-        "r",
-        encoding="utf-8"
-    ) as file:
-
-        data = json.load(file)
-
-    # Current baseline.json is an array
-    # containing one snapshot.
-    if isinstance(data, list):
-
-        return data[0]
-
-    return data
-
-
-def wait_for_collection(
-    collection_id,
-    max_polls=6,
-    poll_interval=10
-):
-    """
-    Poll Bright Data until the collection
-    is ready.
-    """
-
-    result = None
-
-    for poll in range(1, max_polls + 1):
-
-        result = retrieve_results(
-            collection_id
-        )
-
-        if result.get("status") != "building":
-
-            return result
-
-        if poll < max_polls:
-
-            time.sleep(
-                poll_interval
-            )
-
-    return result
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # ============================================================
 # ROOT
@@ -110,7 +54,7 @@ def root():
     return {
         "project": "Self-Healing Web Intelligence",
         "status": "running",
-        "version": "0.3.0"
+        "version": "0.4.0",
     }
 
 
@@ -122,7 +66,7 @@ def root():
 def health():
 
     return {
-        "status": "healthy"
+        "status": "healthy",
     }
 
 
@@ -146,11 +90,11 @@ def config_check():
             )
         ),
 
-        "openai_key_configured": bool(
+        "groq_key_configured": bool(
             os.getenv(
-                "OPENAI_API_KEY"
+                "GROQ_API_KEY"
             )
-        )
+        ),
     }
 
 
@@ -172,25 +116,27 @@ def scrape():
         if not collection_id:
 
             raise RuntimeError(
-                "Bright Data did not return a collection_id"
+                "Bright Data did not return "
+                "a collection_id."
             )
 
         return {
             "status": "triggered",
 
-            "collection_id": collection_id,
+            "collection_id":
+                collection_id,
 
             "message": (
                 "Collector started successfully. "
                 "Results can now be retrieved."
-            )
+            ),
         }
 
     except Exception as error:
 
         raise HTTPException(
             status_code=500,
-            detail=str(error)
+            detail=str(error),
         )
 
 
@@ -209,39 +155,67 @@ def get_scrape_results(
             collection_id
         )
 
-        # Bright Data is still building.
-        if result.get("status") == "building":
+        if result.get(
+            "status"
+        ) == "building":
 
             return {
-                "status": "building",
+                "status":
+                    "building",
 
-                "collection_id": collection_id,
+                "collection_id":
+                    collection_id,
 
-                "message": result.get(
-                    "message",
+                "message": (
                     "Dataset is not ready yet."
-                )
+                ),
+            }
+
+        scraper_data = result.get(
+            "data"
+        )
+
+        if not scraper_data:
+
+            return {
+                "status":
+                    "empty",
+
+                "collection_id":
+                    collection_id,
+
+                "message": (
+                    "Dataset is ready but "
+                    "contains no data."
+                ),
+
+                "data":
+                    result,
             }
 
         validation = validate_changelog_data(
-            result
+            scraper_data
         )
 
         return {
-            "status": "completed",
+            "status":
+                "completed",
 
-            "collection_id": collection_id,
+            "collection_id":
+                collection_id,
 
-            "health": validation,
+            "health":
+                validation,
 
-            "data": result
+            "data":
+                scraper_data,
         }
 
     except Exception as error:
 
         raise HTTPException(
             status_code=500,
-            detail=str(error)
+            detail=str(error),
         )
 
 
@@ -260,45 +234,106 @@ def self_heal(
             collection_id
         )
 
-        health_result = validate_changelog_data(
-            result
-        )
-
-        # No healing necessary.
-        if health_result["healthy"]:
+        if result.get(
+            "status"
+        ) == "building":
 
             return {
-                "status": "healthy",
+                "status":
+                    "building",
 
-                "healed": False,
+                "collection_id":
+                    collection_id,
+
+                "message": (
+                    "Dataset is still building."
+                ),
+            }
+
+        scraper_data = result.get(
+            "data"
+        )
+
+        if not scraper_data:
+
+            health_result = {
+                "healthy": False,
+
+                "record_count": 0,
+
+                "errors": [
+                    "No scraper data returned."
+                ],
+            }
+
+        else:
+
+            health_result = (
+                validate_changelog_data(
+                    scraper_data
+                )
+            )
+
+        # No healing necessary
+        if health_result.get(
+            "healthy",
+            False
+        ):
+
+            return {
+                "status":
+                    "healthy",
+
+                "healed":
+                    False,
 
                 "message": (
                     "No healing was required."
                 ),
 
-                "health": health_result
+                "health":
+                    health_result,
             }
 
-        # Start self-healing.
+        # Start self-healing
         healing_result = heal_scraper(
             max_attempts=3,
             poll_interval=10,
-            max_polls=6
+            max_polls=6,
         )
 
+        if not healing_result.get(
+            "healed",
+            False
+        ):
+
+            return {
+                "status":
+                    "healing_failed",
+
+                "initial_health":
+                    health_result,
+
+                "healing":
+                    healing_result,
+            }
+
         return {
-            "status": "healing_completed",
+            "status":
+                "healing_completed",
 
-            "initial_health": health_result,
+            "initial_health":
+                health_result,
 
-            "healing": healing_result
+            "healing":
+                healing_result,
         }
 
     except Exception as error:
 
         raise HTTPException(
             status_code=500,
-            detail=str(error)
+            detail=str(error),
         )
 
 
@@ -311,195 +346,200 @@ def monitor():
 
     try:
 
-        # ====================================================
-        # STEP 1 — Trigger Bright Data
-        # ====================================================
+        result = run_monitoring_cycle()
 
-        trigger_result = trigger_scraper()
-
-        collection_id = trigger_result.get(
-            "collection_id"
-        )
-
-        if not collection_id:
-
-            raise RuntimeError(
-                "Bright Data did not return a collection_id"
-            )
-
-        # ====================================================
-        # STEP 2 — Wait for Bright Data dataset
-        # ====================================================
-
-        result = wait_for_collection(
-            collection_id,
-
-            max_polls=6,
-
-            poll_interval=10
-        )
-
-        if (
-            result is None
-            or result.get("status") == "building"
-        ):
-
-            raise RuntimeError(
-                "Dataset was not ready after polling."
-            )
-
-        # ====================================================
-        # STEP 3 — Validate extracted data
-        # ====================================================
-
-        initial_health = validate_changelog_data(
-            result
-        )
-
-        # ====================================================
-        # STEP 4 — Self-healing if unhealthy
-        # ====================================================
-
-        healing_result = None
-
-        final_data = result
-
-        if not initial_health["healthy"]:
-
-            healing_result = heal_scraper(
-
-                max_attempts=3,
-
-                poll_interval=10,
-
-                max_polls=6
-            )
-
-            # Healing failed.
-            if not healing_result.get(
-                "healed"
-            ):
-
-                return {
-                    "status": "healing_failed",
-
-                    "collection_id": collection_id,
-
-                    "initial_health": initial_health,
-
-                    "healing": healing_result
-                }
-
-            # Use recovered dataset.
-            final_data = healing_result[
-                "data"
-            ]
-
-        # ====================================================
-        # STEP 5 — Create snapshot
-        # ====================================================
-
-        latest_snapshot = create_snapshot(
-            final_data
-        )
-
-        snapshot_path = save_snapshot(
-            latest_snapshot
-        )
-
-        # ====================================================
-        # STEP 6 — Load baseline
-        # ====================================================
-
-        baseline = load_baseline()
-
-        # ====================================================
-        # STEP 7 — Detect changes
-        # ====================================================
-
-        changes = detect_changes(
-
-            baseline,
-
-            latest_snapshot
-        )
-
-        # ====================================================
-        # STEP 8 — Save change history
-        # ====================================================
-
-        changes_path = save_changes(
-            changes
-        )
-
-        # ====================================================
-        # STEP 9 — AI ANALYSIS
-        # ====================================================
-
-        ai_insight = analyze_changes(
-            changes
-        )
-
-        # ====================================================
-        # STEP 10 — Save AI insight
-        # ====================================================
-
-        insight_path = save_insight(
-            ai_insight
-        )
-
-        # ====================================================
-        # STEP 11 — Determine final status
-        # ====================================================
-
-        if initial_health["healthy"]:
-
-            status = "healthy"
-
-        else:
-
-            status = "healing_completed"
-
-        # ====================================================
-        # STEP 12 — Final response
-        # ====================================================
-
-        return {
-
-            "status": status,
-
-            "collection_id": collection_id,
-
-            "initial_health": initial_health,
-
-            "healing": healing_result,
-
-            "snapshot": {
-
-                "path": snapshot_path,
-
-                "record_count": len(
-                    latest_snapshot.get(
-                        "changelog_entries",
-                        []
-                    )
-                )
-            },
-
-            "changes": changes,
-
-            "changes_path": changes_path,
-
-            "ai_insight": ai_insight,
-
-            "insight_path": insight_path,
-
-            "data": final_data
-        }
+        return result
 
     except Exception as error:
 
         raise HTTPException(
             status_code=500,
-            detail=str(error)
+            detail=str(error),
         )
+
+
+@app.get("/status")
+def get_status():
+    """
+    Return the current monitoring system status.
+    """
+
+    baseline_path = Path("data/baseline.json")
+
+    if not baseline_path.exists():
+
+        return {
+            "status": "not_initialized",
+            "message": (
+                "No baseline exists yet. "
+                "Run POST /monitor first."
+            )
+        }
+
+    try:
+
+        with open(
+            baseline_path,
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            baseline = json.load(file)
+
+    except Exception as error:
+
+        return {
+            "status": "error",
+            "message": str(error)
+        }
+
+    # Support old list-format baselines.
+    if isinstance(baseline, list):
+
+        baseline = (
+            baseline[0]
+            if baseline
+            else {}
+        )
+
+    entries = baseline.get(
+        "changelog_entries",
+        []
+    )
+
+    return {
+        "status": "healthy",
+        "source": baseline.get(
+            "source",
+            "https://vercel.com/changelog"
+        ),
+        "last_scraped_at": baseline.get(
+            "scraped_at"
+        ),
+        "record_count": len(entries),
+        "baseline_exists": True
+    }
+@app.get("/history")
+def get_history():
+    """
+    Return saved monitoring history.
+    """
+
+    snapshots_dir = Path(
+        "data/history/snapshots"
+    )
+
+    changes_dir = Path(
+        "data/history/changes"
+    )
+
+    insights_dir = Path(
+        "data/history/insights"
+    )
+
+    def get_files(directory):
+        if not directory.exists():
+            return []
+
+        files = sorted(
+            directory.glob("*.json"),
+            key=lambda path: path.stat().st_mtime,
+            reverse=True
+        )
+
+        return [
+            {
+                "filename": file.name,
+                "path": str(file)
+            }
+            for file in files
+        ]
+
+    return {
+        "snapshots": get_files(
+            snapshots_dir
+        ),
+        "changes": get_files(
+            changes_dir
+        ),
+        "insights": get_files(
+            insights_dir
+        )
+    }
+@app.get("/latest")
+def get_latest():
+    """
+    Return the latest monitoring snapshot,
+    change report, and AI insight.
+    """
+
+    snapshots_dir = Path(
+        "data/history/snapshots"
+    )
+
+    changes_dir = Path(
+        "data/history/changes"
+    )
+
+    insights_dir = Path(
+        "data/history/insights"
+    )
+
+    def get_latest_json(directory):
+
+        if not directory.exists():
+
+            return None
+
+        files = sorted(
+            directory.glob("*.json"),
+            key=lambda path: path.stat().st_mtime,
+            reverse=True
+        )
+
+        if not files:
+
+            return None
+
+        latest_file = files[0]
+
+        try:
+
+            with open(
+                latest_file,
+                "r",
+                encoding="utf-8"
+            ) as file:
+
+                return {
+                    "filename": latest_file.name,
+                    "data": json.load(file)
+                }
+
+        except (
+            json.JSONDecodeError,
+            OSError
+        ) as error:
+
+            return {
+                "filename": latest_file.name,
+                "error": str(error)
+            }
+
+    latest_snapshot = get_latest_json(
+        snapshots_dir
+    )
+
+    latest_changes = get_latest_json(
+        changes_dir
+    )
+
+    latest_insight = get_latest_json(
+        insights_dir
+    )
+
+    return {
+        "snapshot": latest_snapshot,
+        "changes": latest_changes,
+        "ai_insight": latest_insight
+    }
