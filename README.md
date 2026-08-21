@@ -548,7 +548,7 @@ self-healing-intelligence/
 ## 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/Satyanarayana001/self-healing-web-intelligence
 cd self-healing-intelligence
 ```
 
