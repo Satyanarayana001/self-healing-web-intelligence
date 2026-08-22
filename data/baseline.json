@@ -1,11 +1,21 @@
 {
   "source": "https://vercel.com/changelog",
-  "scraped_at": "2026-08-21T17:50:17.815321+00:00",
+  "scraped_at": "2026-08-22T08:27:08.854447+00:00",
   "changelog_entries": [
     {
       "title": "Deployment Storage keeps your deployments rollback-ready",
       "description": "Deployment Storage is now measured and billed at $0.10 per GB per month for new Pro and Enterprise teams. Control retention in Deployment History.",
       "url": "https://vercel.com/changelog/deployment-storage-keeps-your-deployments-rollback-ready"
+    },
+    {
+      "title": "Vercel CLI expands support for DNS, domains, and project commands",
+      "description": "New Vercel CLI commands bring more DNS, domain, and project workflows to the terminal. Inspect and update DNS records, renew domains, configure projects, and manage members interactively or through automation.",
+      "url": "https://vercel.com/changelog/vercel-cli-expands-support-for-dns-domains-and-project-commands"
+    },
+    {
+      "title": "GPT-5.6 Sol is now 50% off a lower price",
+      "description": "GPT-5.6 Sol list pricing drops to $4 and $20 per million tokens, and the 50% AI Gateway discount still applies, so requests now cost even less.",
+      "url": "https://vercel.com/changelog/gpt-5-6-sol-is-now-50-percent-off-a-lower-price"
     },
     {
       "title": "DeepSeek V4 Flash Vision Experimental now available on AI Gateway",
@@ -31,16 +41,6 @@
       "title": "Custom metrics are now supported in Vercel Observability",
       "description": "Emit your own metrics from Vercel Functions and analyze them alongside Vercel's built-in observability data.",
       "url": "https://vercel.com/changelog/custom-metrics-are-now-supported-in-vercel-observability"
-    },
-    {
-      "title": "Vercel Agent is now available in Slack code channels",
-      "description": "Start a code channel to give a task its own shared Vercel Agent session, where your team can send requests, review diffs, and coordinate together.",
-      "url": "https://vercel.com/changelog/vercel-agent-is-now-available-in-slack-code-channels"
-    },
-    {
-      "title": "Manage Vercel Container Registry with Vercel CLI",
-      "description": "Manage Vercel Container Registry with Vercel CLI. The new vercel vcr commands let you create and inspect repositories, browse images and tags, and connect your existing container tooling. Docker, Podman, and Buildah are all supported.",
-      "url": "https://vercel.com/changelog/manage-vercel-container-registry-with-vercel-cli"
     }
   ]
 }
