@@ -8,13 +8,11 @@ Built for the **Into the Scrape-Verse Hackathon**.
 
 ## 🚀 Overview
 
-**Self-Healing Web Intelligence** is an automated monitoring platform that tracks changes on a website and maintains a historical record of its content.
+**Self-Healing Web Intelligence** is an automated web monitoring platform that tracks changes on a website and maintains a historical record of its content.
 
-Unlike a traditional web scraper, this system does not simply scrape a website and stop.
+Unlike a traditional scraper that simply extracts data and stops, this system follows an intelligent monitoring pipeline:
 
-It continuously follows an intelligent pipeline:
-
-1. Extract website data using **Bright Data**
+1. Extract website data using **Bright Data Scraper Studio**
 2. Validate the extracted data
 3. Detect unhealthy or failed scraper results
 4. Automatically trigger a **self-healing recovery process**
@@ -25,9 +23,7 @@ It continuously follows an intelligent pipeline:
 9. Store monitoring history
 10. Display the latest system state through a **React dashboard**
 
-The current implementation monitors the:
-
-**Vercel Changelog**
+The current implementation monitors the **Vercel Changelog**:
 
 ```text
 https://vercel.com/changelog
@@ -62,6 +58,41 @@ It displays:
 ![Self-Healing Web Intelligence Dashboard](docs/images/dashboard.png)
 
 ---
+
+## 🌐 Bright Data Scraper Execution
+
+The project uses a custom scraper created in **Bright Data Scraper Studio** to extract structured changelog information.
+
+The Bright Data integration is responsible for triggering scraper collections, retrieving collection results, and providing the structured data used by the monitoring pipeline.
+
+![Bright Data Scraper Runs](docs/images/bright-data-runs.png)
+
+---
+
+## ❤️‍🩹 Self-Healing Demonstration
+
+The system detects an unhealthy extraction, automatically triggers a new Bright Data collection, validates the recovered data, and continues the monitoring pipeline.
+
+A successful recovery can produce a result such as:
+
+```text
+status: healing_completed
+
+initial_health:
+  healthy: false
+  record_count: 0
+
+healing:
+  healed: true
+  attempts: 1
+
+snapshot:
+  record_count: 8
+
+baseline_updated: true
+```
+
+![Self-Healing Demo](docs/images/self-healing-demo.png)
 
 ---
 
@@ -157,10 +188,10 @@ Validate Again
         │
    ┌──────┴──────┐
    │             │
-Healthy       Still Unhealthy
+Healthy      Still Unhealthy
    │             │
    ▼             ▼
-Continue       Retry Recovery
+Continue      Retry Recovery
 Pipeline
 ```
 
@@ -197,17 +228,17 @@ data/history/snapshots/
 Example:
 
 ```text
-snapshot_20260821_164307.json
+snapshot_20260822_082708.json
 ```
 
-A snapshot contains the normalized website state at a specific point in time.
+A snapshot represents the normalized state of the monitored website at a specific point in time.
 
 Example structure:
 
 ```json
 {
   "source": "https://vercel.com/changelog",
-  "scraped_at": "2026-08-21T16:43:07.550161+00:00",
+  "scraped_at": "2026-08-22T08:27:08.854447+00:00",
   "changelog_entries": [
     {
       "title": "Example Update",
@@ -232,7 +263,7 @@ data/baseline.json
 
 Only successfully validated snapshots are allowed to replace the baseline.
 
-This prevents situations where:
+This prevents situations such as:
 
 ```text
 Scraper Failure
@@ -279,8 +310,6 @@ New:
 Deployment Storage keeps your deployments rollback-ready TEST
 ```
 
-The system detects this as a modification.
-
 ### ❌ Missing
 
 An entry that existed in the previous baseline is not present in the latest snapshot.
@@ -289,7 +318,7 @@ An entry that existed in the previous baseline is not present in the latest snap
 
 An entry remains the same between the baseline and the latest snapshot.
 
-Example change summary:
+Example summary:
 
 ```json
 {
@@ -326,8 +355,7 @@ Overall Impact: low
 Another example:
 
 ```text
-No new, modified, or missing entries detected;
-all eight records remain unchanged.
+No new, modified, or missing entries detected.
 
 Overall Impact: low
 ```
@@ -343,76 +371,54 @@ data/history/insights/
 # 🏗️ System Architecture
 
 ```text
-                         ┌──────────────────────┐
-                         │   Vercel Changelog   │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │     Bright Data      │
-                         │    Scraper Studio    │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │   Data Extraction    │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │  Health Validation   │
-                         └──────────┬───────────┘
-                                    │
-                      ┌─────────────┴─────────────┐
-                      │                           │
-                      ▼                           ▼
-                  HEALTHY                     UNHEALTHY
-                      │                           │
-                      │                           ▼
-                      │                 ┌─────────────────┐
-                      │                 │  Self-Healing   │
-                      │                 │ Recovery Engine │
-                      │                 └────────┬────────┘
-                      │                          │
-                      │                          ▼
-                      │                 Trigger New Scrape
-                      │                          │
-                      └───────────────┬──────────┘
-                                      │
-                                      ▼
-                         ┌──────────────────────┐
-                         │  Snapshot Creation   │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │   Load Baseline      │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │   Change Detection   │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │   Save Change Data   │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │   Groq AI Analysis   │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │   Save AI Insight    │
-                         └──────────┬───────────┘
-                                    │
-                                    ▼
-                         ┌──────────────────────┐
-                         │   Update Baseline    │
-                         └──────────────────────┘
+                    Vercel Changelog
+                           │
+                           ▼
+                Bright Data Scraper Studio
+                           │
+                           ▼
+                    Data Extraction
+                           │
+                           ▼
+                   Health Validation
+                           │
+              ┌────────────┴────────────┐
+              │                         │
+              ▼                         ▼
+           HEALTHY                  UNHEALTHY
+              │                         │
+              │                         ▼
+              │                  Self-Healing
+              │                  Recovery Engine
+              │                         │
+              │                         ▼
+              │               Trigger New Scrape
+              │                         │
+              └─────────────┬───────────┘
+                            │
+                            ▼
+                    Snapshot Creation
+                            │
+                            ▼
+                     Load Baseline
+                            │
+                            ▼
+                     Change Detection
+                            │
+                            ▼
+                      Save Changes
+                            │
+                            ▼
+                      Groq AI Analysis
+                            │
+                            ▼
+                      Save AI Insight
+                            │
+                            ▼
+                      Update Baseline
+                            │
+                            ▼
+                     React Dashboard
 ```
 
 ---
@@ -450,7 +456,7 @@ Validate Data
         │                     │
         │                     ▼
         │                 STEP 5
-        │                 Self-Healing
+        │                Self-Healing
         │                     │
         └─────────────┬───────┘
                       │
@@ -520,10 +526,9 @@ Monitoring Completed
 # 📂 Project Structure
 
 ```text
-self-healing-intelligence/
+self-healing-web-intelligence/
 │
 ├── backend/
-│   │
 │   ├── main.py
 │   │
 │   ├── services/
@@ -539,9 +544,7 @@ self-healing-intelligence/
 │   └── test_orchestrator.py
 │
 ├── frontend/
-│   │
 │   ├── public/
-│   │
 │   ├── src/
 │   │   ├── assets/
 │   │   ├── App.css
@@ -554,17 +557,23 @@ self-healing-intelligence/
 │   └── vite.config.js
 │
 ├── data/
-│   │
 │   ├── baseline.json
 │   │
 │   └── history/
 │       ├── snapshots/
 │       ├── changes/
-│       └── insights/
+│       ├── insights/
+│       └── healing_events.json
 │
 ├── docs/
 │   ├── architecture.md
-│   └── bright-data.md
+│   ├── bright-data.md
+│   │
+│   └── images/
+│       ├── architecture.png
+│       ├── dashboard.png
+│       ├── bright-data-runs.png
+│       └── self-healing-demo.png
 │
 ├── .env
 ├── .gitignore
@@ -578,8 +587,9 @@ self-healing-intelligence/
 ## 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Satyanarayana001/self-healing-web-intelligence
-cd self-healing-intelligence
+git clone https://github.com/Satyanarayana001/self-healing-web-intelligence.git
+
+cd self-healing-web-intelligence
 ```
 
 ---
@@ -600,13 +610,11 @@ Activate it on Windows:
 
 ## 3. Install Backend Dependencies
 
-Install the required Python packages:
-
 ```bash
 pip install fastapi uvicorn requests python-dotenv groq
 ```
 
-If your project uses a `requirements.txt` file:
+If a `requirements.txt` file is available:
 
 ```bash
 pip install -r requirements.txt
@@ -618,14 +626,12 @@ pip install -r requirements.txt
 
 Create a `.env` file in the project root.
 
-Example:
-
 ```env
 BRIGHT_DATA_API_TOKEN=your_bright_data_api_token
 GROQ_API_KEY=your_groq_api_key
 ```
 
-Do not commit your API keys.
+Do not commit API keys.
 
 Make sure `.env` is included in `.gitignore`.
 
@@ -633,19 +639,19 @@ Make sure `.env` is included in `.gitignore`.
 
 # ▶️ Running the Backend
 
-From the project root directory:
+From the project root:
 
 ```bash
 uvicorn backend.main:app --reload
 ```
 
-The backend will start at:
+The backend starts at:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-FastAPI documentation is available at:
+FastAPI documentation:
 
 ```text
 http://127.0.0.1:8000/docs
@@ -675,7 +681,7 @@ Start the development server:
 npm run dev
 ```
 
-The frontend will run at:
+The frontend runs at:
 
 ```text
 http://localhost:5173
@@ -693,32 +699,20 @@ Runs the complete monitoring pipeline.
 POST /monitor
 ```
 
-PowerShell example:
+PowerShell:
 
 ```powershell
 Invoke-RestMethod -Method Post http://127.0.0.1:8000/monitor
 ```
 
-Example response:
+A successful self-healing run can return:
 
-```json
-{
-  "status": "healthy",
-  "collection_id": "example_collection_id",
-  "snapshot": {
-    "path": "data/history/snapshots/snapshot_example.json",
-    "record_count": 8
-  },
-  "changes": {
-    "summary": {
-      "new": 0,
-      "modified": 0,
-      "missing_from_latest_snapshot": 0,
-      "unchanged": 8
-    }
-  },
-  "baseline_updated": true
-}
+```text
+status: healing_completed
+initial_health: healthy=False
+healing: healed=True
+snapshot: record_count=8
+baseline_updated: True
 ```
 
 ---
@@ -735,16 +729,6 @@ PowerShell:
 Invoke-RestMethod http://127.0.0.1:8000/status
 ```
 
-Example response:
-
-```text
-status          : healthy
-source          : https://vercel.com/changelog
-last_scraped_at : 2026-08-21T16:43:07.550161+00:00
-record_count    : 8
-baseline_exists : True
-```
-
 ---
 
 ## View Monitoring History
@@ -758,8 +742,6 @@ PowerShell:
 ```powershell
 Invoke-RestMethod http://127.0.0.1:8000/history
 ```
-
-The endpoint provides access to previously generated snapshots.
 
 ---
 
@@ -775,11 +757,12 @@ PowerShell:
 Invoke-RestMethod http://127.0.0.1:8000/latest
 ```
 
-The latest result includes:
+The latest result can include:
 
 - Latest snapshot
 - Latest detected changes
 - Latest AI insight
+- Monitoring status
 
 ---
 
@@ -793,13 +776,14 @@ It displays:
 - Total extracted records
 - Number of new changes
 - Number of modified entries
+- Missing entries
 - AI-generated insight
 - Overall impact
 - Latest changelog entries
 
-Users can also manually trigger a monitoring cycle using the dashboard.
+Users can manually trigger a monitoring cycle from the dashboard.
 
-Example dashboard information:
+Example:
 
 ```text
 System Health: HEALTHY
@@ -820,17 +804,13 @@ Overall Impact: low
 
 # 💾 Data Storage
 
-The project stores monitoring information locally.
-
 ## Baseline
 
 ```text
 data/baseline.json
 ```
 
-Stores the most recent successfully validated snapshot.
-
----
+Stores the most recent successfully validated state.
 
 ## Snapshots
 
@@ -840,8 +820,6 @@ data/history/snapshots/
 
 Stores timestamped website states.
 
----
-
 ## Changes
 
 ```text
@@ -850,15 +828,21 @@ data/history/changes/
 
 Stores detected differences between snapshots.
 
----
-
 ## AI Insights
 
 ```text
 data/history/insights/
 ```
 
-Stores AI-generated analysis of detected changes.
+Stores AI-generated analysis.
+
+## Healing Events
+
+```text
+data/history/healing_events.json
+```
+
+Stores information about scraper failures and recovery attempts.
 
 ---
 
@@ -915,7 +899,7 @@ Data validation detected failure
         ↓
 Self-healing started
         ↓
-New scraper collection triggered
+New Bright Data collection triggered
         ↓
 Valid data recovered
         ↓
@@ -926,7 +910,7 @@ Monitoring pipeline continued
 
 # 🧠 Why Self-Healing?
 
-Traditional web scraping systems often fail when:
+Traditional web scraping systems can fail when:
 
 - Website structure changes
 - A scraper temporarily returns empty data
@@ -962,6 +946,49 @@ This approach makes the monitoring pipeline more resilient.
 
 ---
 
+# 🎯 Hackathon Tracks
+
+This project is designed to demonstrate strengths across the following Scrape-Verse hackathon tracks.
+
+## 🕷️ Web-Slinger Track — Best Use of Bright Data
+
+The project uses:
+
+- A custom scraper created in Bright Data Scraper Studio
+- Bright Data collections for structured extraction
+- Collection triggering and result retrieval through the application
+- Data validation after extraction
+- Automatic recovery by triggering a new collection when extraction is unhealthy
+- Structured scraped data powering monitoring, snapshots, change detection, and AI analysis
+
+## 🦸 Suit-Up Track — Best UI
+
+The React dashboard provides a visual interface for understanding:
+
+- System health
+- Extracted records
+- Change detection
+- Missing and modified records
+- AI-generated insights
+- Overall impact
+
+## 🕸️ Spider-Sense Track — Best Clean Code
+
+The project separates responsibilities into focused services:
+
+```text
+brightdata.py        → Web extraction
+validator.py         → Data validation
+healing.py           → Recovery logic
+snapshot.py          → Snapshot creation
+baseline.py          → Baseline management
+change_detector.py   → Change detection
+ai_analyzer.py       → AI analysis
+orchestrator.py      → Complete pipeline coordination
+```
+
+---
+
 # 🔮 Future Improvements
 
 Potential improvements include:
@@ -988,11 +1015,9 @@ Potential improvements include:
 
 # 🏆 Hackathon Project
 
-This project was built for the:
+This project was built for the **Into the Scrape-Verse Hackathon**.
 
-**Into the Scrape-Verse Hackathon**
-
-The project demonstrates how web extraction can be made more reliable by combining:
+It demonstrates how web extraction can be made more reliable by combining:
 
 - 🌐 Automated web scraping
 - ❤️ Data health validation
@@ -1040,10 +1065,10 @@ The core idea is simple:
                 CHANGE DETECTION
                        │
                        ▼
-                 AI ANALYSIS
+                  AI ANALYSIS
                        │
                        ▼
-                  DASHBOARD
+                   DASHBOARD
 ```
 
 ---
