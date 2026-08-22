@@ -35,6 +35,36 @@ https://vercel.com/changelog
 
 ---
 
+# 📸 Project Screenshots
+
+## 🏗️ System Architecture
+
+The architecture below shows the complete monitoring pipeline, including Bright Data Scraper Studio, health validation, self-healing recovery, snapshot creation, change detection, Groq AI analysis, and the React dashboard.
+
+![System Architecture](docs/images/architecture.png)
+
+---
+
+## 📊 Monitoring Dashboard
+
+The React dashboard provides a visual overview of the latest monitoring cycle.
+
+It displays:
+
+- System health
+- Total records extracted
+- New changes
+- Modified entries
+- Missing entries
+- AI-generated insights
+- Change detection results
+
+![Self-Healing Web Intelligence Dashboard](docs/images/dashboard.png)
+
+---
+
+---
+
 # ✨ Features
 
 ## 🔎 Automated Web Monitoring
